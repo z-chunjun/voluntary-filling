@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.group.voluntaryfilling.mapper.CollegeInfoMapper">
+
+    <select id="getLowestRankByScience" resultType="String">
+        select science.rank from science where score=#{grade}
+    </select>
+
+    <select id="getLowestRankByArts" resultType="String">
+        select liberal_arts.rank from liberal_arts where score=#{grade}
+    </select>
+
+
+    <select id="queryCollegeByCondition" resultType="com.group.voluntaryfilling.entity.vo.CollegeVo">
+        select college_info.id,
+               college_info.cn_name,
+               college_score.direction,
+               college_info.simple_name,
+               college_info.ranking,
+               college_score.section,
+               college_score.lowest_rank,
+               college_info.college_code,
+               college_info.province,
+               college_info.college_type,
+               college_info.total_label,
+               college_info.simple_label,
+               college_info.img_id,
+               college_score.admission_number,
+               college_score.lowest_score from college_info
+               join college_score on college_info.cn_name = college_score.college_name
+               join major_score on major_score.college_name = college_info.cn_name
+               <where>
+                   <if test="province != null and province != '' ">
+                        and province like #{province}
+                   </if>
+                   <if test="collegeType != null and collegeType != '' ">
+                       and college_type like #{collegeType}
+                   </if>
+                   <if test="totalLabel != null and totalLabel != '' ">
+                        and total_label like CONCAT('%',CONCAT(#{totalLabel},'%'))
+                   </if>
+
+                   <if test="simpleName != null and simpleName != '' ">
+                       and major like CONCAT('%',CONCAT(#{simpleName},'%'))
+                   </if>
+
+                   <if test="major != null and major != '' ">
+                       and major like CONCAT('%',CONCAT(#{major},'%'))
+                   </if>
+               </where>
+    </select>
+
+    <select id="queryCollegeByGrade" resultType="com.group.voluntaryfilling.entity.vo.CollegeVo">
+        select college_info.id,
+               college_info.cn_name,
+               college_info.ranking,
+               college_score.direction,
+               college_score.section,
+               college_score.lowest_rank,
+               college_info.simple_name,
+               college_info.college_code,
+               college_info.province,
+               college_info.college_type,
+               college_info.simple_label,
+               college_info.total_label,
+               college_info.img_id,
+               college_score.admission_number,
+               college_score.lowest_score
+        from college_info
+                 join college_score
+                      on college_info.cn_name = college_score.college_name
+        where college_score.lowest_score>=#{minGrade} and college_score.section=#{section};
+    </select>
+
+</mapper>
